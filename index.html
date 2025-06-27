@@ -71,7 +71,7 @@
     const line1El = document.getElementById("line1");
     const line2El = document.getElementById("line2");
 
-    function typeText(element, text, delay = 70, callback) {
+    function typeText(element, text, delay = 180, callback) {
       let i = 0;
       function type() {
         if (i < text.length) {
@@ -87,7 +87,7 @@
     function startLine2() {
       setTimeout(() => {
         line2El.classList.remove("hidden");
-        typeText(line2El, line2TextParts[0], 70, () => {
+        typeText(line2El, line2TextParts[0], 180, () => {
           line2El.innerHTML += line2TextParts[1];
           setTimeout(() => {
             line2El.classList.add("fade-out");
