@@ -40,7 +40,7 @@
     const line2b = "here"; // italic
     const line2c = "?";
 
-    const speed = 70;
+    const speed = 90;
     const target = document.getElementById("text");
 
     function typeLine(text, el, delay = speed) {
@@ -57,23 +57,32 @@
       });
     }
 
+    function fadeOutTarget(delay = 0) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          target.style.opacity = 0;
+          setTimeout(resolve, 1500); // wait for fade to finish
+        }, delay);
+      });
+    }
+
     async function runSequence() {
       await typeLine(line1, target);
       await new Promise(r => setTimeout(r, 1500));
+      await fadeOutTarget();
 
-      target.style.opacity = 0;
-      await new Promise(r => setTimeout(r, 1500));
       target.innerHTML = "";
       target.style.opacity = 1;
 
       await typeLine(line2a, target);
-
       const italicSpan = document.createElement("span");
       italicSpan.className = "italic";
       target.appendChild(italicSpan);
       await typeLine(line2b, italicSpan);
-
       await typeLine(line2c, target);
+
+      await new Promise(r => setTimeout(r, 1500));
+      await fadeOutTarget();
     }
 
     runSequence();
