@@ -53,6 +53,7 @@
 
     const TYPE_SPEED = 120;
     const PAUSE = 2500;
+    const FADE_DURATION = 2500;
 
     async function typeLine(text, parent, isHTML = false) {
       return new Promise(resolve => {
@@ -69,7 +70,7 @@
             clearInterval(interval);
             setTimeout(() => {
               parent.classList.add('fade');
-              setTimeout(resolve, 2500); // total = pause + fade
+              resolve(); // resolve after fade starts
             }, PAUSE);
           }
         }, TYPE_SPEED);
@@ -104,7 +105,7 @@
       div1.className = "line";
       container.appendChild(div1);
       await typeLine(line1, div1);
-      await new Promise(r => setTimeout(r, 2500)); // wait for fade before line 2
+      await new Promise(r => setTimeout(r, FADE_DURATION)); // wait full fade after line 1
       await typeSecondLine();
     }
 
