@@ -54,11 +54,16 @@
     const TYPE_SPEED = 120;
     const PAUSE = 2500;
     const FADE_DURATION = 2500;
+    const EXTRA_DELAY = 500;
+
+    async function delay(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
 
     async function typeCharacters(text, target) {
       for (let i = 0; i < text.length; i++) {
         target.textContent += text[i];
-        await new Promise(r => setTimeout(r, TYPE_SPEED));
+        await delay(TYPE_SPEED);
       }
     }
 
@@ -66,11 +71,10 @@
       const div1 = document.createElement("div");
       div1.className = "line";
       container.appendChild(div1);
-
       await typeCharacters(line1, div1);
-      await new Promise(r => setTimeout(r, PAUSE));
+      await delay(PAUSE);
       div1.classList.add("fade");
-      await new Promise(r => setTimeout(r, FADE_DURATION + 500));
+      await delay(FADE_DURATION + EXTRA_DELAY);
 
       const div2 = document.createElement("div");
       div2.className = "line";
@@ -81,18 +85,15 @@
       italic.className = "italic";
       div2.appendChild(italic);
 
-      await new Promise(r => setTimeout(r, 250)); // Ensure delay before typing starts
+      await delay(300); // final safety delay before visible typing
 
       for (let i = 0; i < line2B.length; i++) {
         italic.textContent += line2B[i];
-        await new Promise(r => setTimeout(r, TYPE_SPEED));
+        await delay(TYPE_SPEED);
       }
 
       div2.appendChild(document.createTextNode(line2C));
-
-      setTimeout(() => {
-        div2.classList.add("fade");
-      }, PAUSE);
+      setTimeout(() => div2.classList.add("fade"), PAUSE);
     }
 
     run();
