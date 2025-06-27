@@ -14,7 +14,7 @@
       font-weight: bold;
       font-size: 2.8em;
       display: flex;
-      justify-content: center;
+      justify-content: flex-start;
       align-items: center;
       height: 100vh;
       overflow: hidden;
@@ -23,6 +23,7 @@
     #container {
       text-align: left;
       white-space: pre-line;
+      padding-left: 5vw;
     }
 
     .hidden {
@@ -92,15 +93,19 @@
             line2El.classList.add("fade-out");
           }, 2000);
         });
-      }, 3000); // delay start of line 2 to wait for line 1 fade
+      }, 3000);
     }
 
-    typeText(line1El, line1Text, 70, () => {
-      setTimeout(() => {
-        line1El.classList.add("fade-out");
-        startLine2();
-      }, 2000);
-    });
+    // NEW: Delay before starting Line 1
+    setTimeout(() => {
+      typeText(line1El, line1Text, 70, () => {
+        setTimeout(() => {
+          line1El.classList.add("fade-out");
+          startLine2();
+        }, 2000);
+      });
+    }, 2000); // initial pause before line 1 typing begins
+
   </script>
 </body>
 </html>
