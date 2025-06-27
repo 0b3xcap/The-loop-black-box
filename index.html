@@ -55,49 +55,41 @@
     const PAUSE = 2500;
     const FADE_DURATION = 2500;
 
-    async function typeLine(text, parent) {
+    async function typeCharacters(text, target) {
       for (let i = 0; i < text.length; i++) {
-        parent.textContent += text[i];
+        target.textContent += text[i];
         await new Promise(r => setTimeout(r, TYPE_SPEED));
       }
-    }
-
-    async function fadeAndWait(element) {
-      await new Promise(r => setTimeout(r, PAUSE));
-      element.classList.add("fade");
-      await new Promise(r => setTimeout(r, FADE_DURATION));
-    }
-
-    async function typeSecondLine() {
-      const div = document.createElement("div");
-      div.className = "line";
-      container.appendChild(div);
-
-      div.textContent = line2A;
-
-      const italic = document.createElement("span");
-      italic.className = "italic";
-      div.appendChild(italic);
-
-      for (let i = 0; i < line2B.length; i++) {
-        italic.textContent += line2B[i];
-        await new Promise(r => setTimeout(r, TYPE_SPEED));
-      }
-
-      div.appendChild(document.createTextNode(line2C));
-
-      setTimeout(() => {
-        div.classList.add('fade');
-      }, PAUSE);
     }
 
     async function run() {
       const div1 = document.createElement("div");
       div1.className = "line";
       container.appendChild(div1);
-      await typeLine(line1, div1);
-      await fadeAndWait(div1); // Fade out fully before continuing
-      await typeSecondLine();
+      await typeCharacters(line1, div1);
+      await new Promise(r => setTimeout(r, PAUSE));
+      div1.classList.add("fade");
+      await new Promise(r => setTimeout(r, FADE_DURATION));
+
+      const div2 = document.createElement("div");
+      div2.className = "line";
+      container.appendChild(div2);
+      div2.textContent = line2A;
+
+      const italic = document.createElement("span");
+      italic.className = "italic";
+      div2.appendChild(italic);
+
+      for (let i = 0; i < line2B.length; i++) {
+        italic.textContent += line2B[i];
+        await new Promise(r => setTimeout(r, TYPE_SPEED));
+      }
+
+      div2.appendChild(document.createTextNode(line2C));
+
+      setTimeout(() => {
+        div2.classList.add("fade");
+      }, PAUSE);
     }
 
     run();
