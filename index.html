@@ -1,1 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>The Loop – Black Box</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      color: white;
+      font-family: Calibri, sans-serif;
+      font-weight: bold;
+      font-size: 5.8vw;
+      line-height: 1.4;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
+    #container {
+      text-align: left;
+      max-width: 90vw;
+    }
+
+    .line {
+      opacity: 1;
+      transition: opacity 2.5s ease;
+    }
+
+    .fade {
+      opacity: 0;
+    }
+
+    .italic {
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div id="container"></div>
+
+  <script>
+    const container = document.getElementById("container");
+
+    const line1 = "Most people never question the shift between sleep and habit.";
+    const line2A = "You were here. But were you ";
+    const line2B = "here";
+    const line2C = "?";
+
+    const TYPE_SPEED = 120;
+    const PAUSE = 2500;
+    const FADE_DURATION = 2500;
+
+    async function typeLine(text, parent) {
+      for (let i = 0; i < text.length; i++) {
+        parent.textContent += text[i];
+        await new Promise(r => setTimeout(r, TYPE_SPEED));
+      }
+    }
+
+    async function fadeAndWait(element) {
+      await new Promise(r => setTimeout(r, PAUSE));
+      element.classList.add("fade");
+      await new Promise(r => setTimeout(r, FADE_DURATION));
+    }
+
+    async function typeSecondLine() {
+      const div = document.createElement("div");
+      div.className = "line";
+      container.appendChild(div);
+
+      div.textContent = line2A;
+
+      const italic = document.createElement("span");
+      italic.className = "italic";
+      div.appendChild(italic);
+
+      for (let i = 0; i < line2B.length; i++) {
+        italic.textContent += line2B[i];
+        await new Promise(r => setTimeout(r, TYPE_SPEED));
+      }
+
+      div.appendChild(document.createTextNode(line2C));
+
+      setTimeout(() => {
+        div.classList.add('fade');
+      }, PAUSE);
+    }
+
+    async function run() {
+      const div1 = document.createElement("div");
+      div1.className = "line";
+      container.appendChild(div1);
+      await typeLine(line1, div1);
+      await fadeAndWait(div1); // Fade out fully before continuing
+      await typeSecondLine();
+    }
+
+    run();
+  </script>
+</body>
+</html>
