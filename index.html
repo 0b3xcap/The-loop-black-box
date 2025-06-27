@@ -2,37 +2,43 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>The Loop – Black Box</title>
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      background: black;
-      color: white;
+      background-color: #000;
+      color: #fff;
       font-family: Calibri, sans-serif;
       font-weight: bold;
-      font-size: 5.8vw;
-      line-height: 1.4;
+      font-size: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
       overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      text-align: left;
+      white-space: pre-wrap;
     }
 
     #container {
-      text-align: left;
-      max-width: 90vw;
+      max-width: 90%;
+      padding: 20px;
+    }
+
+    .hidden {
+      opacity: 0;
+      transition: opacity 1.5s ease;
+    }
+
+    .visible {
+      opacity: 1;
     }
 
     .line {
-      opacity: 1;
-      transition: opacity 2.5s ease;
-    }
-
-    .fade {
-      opacity: 0;
+      display: block;
+      line-height: 1.2;
     }
 
     .italic {
@@ -41,62 +47,47 @@
   </style>
 </head>
 <body>
-  <div id="container"></div>
+  <div id="container">
+    <span id="line1" class="line hidden"></span>
+    <span id="line2" class="line hidden"></span>
+  </div>
 
   <script>
-    const container = document.getElementById("container");
-
-    const line1 = "Most people never question the shift between sleep and habit.";
-    const line2A = "You were here. But were you ";
-    const line2B = "here";
-    const line2C = "?";
-
-    const TYPE_SPEED = 120;
-    const PAUSE = 2500;
-    const FADE_DURATION = 2500;
-    const EXTRA_DELAY = 500;
-
-    async function delay(ms) {
-      return new Promise(r => setTimeout(r, ms));
+    function typeText(element, text, delay = 100) {
+      return new Promise(resolve => {
+        let i = 0;
+        function type() {
+          if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, delay);
+          } else {
+            resolve();
+          }
+        }
+        type();
+      });
     }
 
-    async function typeCharacters(text, target) {
-      for (let i = 0; i < text.length; i++) {
-        target.textContent += text[i];
-        await delay(TYPE_SPEED);
-      }
+    async function runSequence() {
+      const line1 = document.getElementById('line1');
+      const line2 = document.getElementById('line2');
+
+      // Line 1
+      line1.classList.add('visible');
+      await typeText(line1, "Most people never question the shift between sleep and habit.", 80);
+      await new Promise(resolve => setTimeout(resolve, 1600));
+      line1.classList.remove('visible');
+      await new Promise(resolve => setTimeout(resolve, 1500)); // wait for fade out to complete
+
+      // Line 2
+      line2.classList.add('visible');
+      await typeText(line2, 'You were here. But were you <span class="italic">here?</span>', 80);
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      line2.classList.remove('visible');
     }
 
-    async function run() {
-      const div1 = document.createElement("div");
-      div1.className = "line";
-      container.appendChild(div1);
-      await typeCharacters(line1, div1);
-      await delay(PAUSE);
-      div1.classList.add("fade");
-      await delay(FADE_DURATION + EXTRA_DELAY);
-
-      const div2 = document.createElement("div");
-      div2.className = "line";
-      container.appendChild(div2);
-      div2.textContent = line2A;
-
-      const italic = document.createElement("span");
-      italic.className = "italic";
-      div2.appendChild(italic);
-
-      await delay(300); // final safety delay before visible typing
-
-      for (let i = 0; i < line2B.length; i++) {
-        italic.textContent += line2B[i];
-        await delay(TYPE_SPEED);
-      }
-
-      div2.appendChild(document.createTextNode(line2C));
-      setTimeout(() => div2.classList.add("fade"), PAUSE);
-    }
-
-    run();
+    window.onload = runSequence;
   </script>
 </body>
 </html>
