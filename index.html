@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black Box 001</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: black;
+      color: white;
+      font-family: Calibri, sans-serif;
+      font-weight: bold;
+      font-size: 2em;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #text {
+      white-space: pre-wrap;
+      text-align: left;
+      max-width: 90vw;
+    }
+  </style>
+</head>
+<body>
+  <div id="text"></div>
+
+  <script>
+    const lines = [
+      "Most people never question the shift between sleep and habit",
+      "",
+      "You were here. But were you here?"
+    ];
+
+    const speed = 40; // typing speed (ms per character)
+    let currentLine = 0;
+    let currentChar = 0;
+    const target = document.getElementById("text");
+
+    function typeNextChar() {
+      if (currentLine >= lines.length) return;
+
+      const line = lines[currentLine];
+      if (currentChar < line.length) {
+        target.innerHTML += line[currentChar];
+        currentChar++;
+        setTimeout(typeNextChar, speed);
+      } else {
+        currentLine++;
+        currentChar = 0;
+        target.innerHTML += "\n";
+        let delay = currentLine === 1 ? 1000 : 1500; // short pause after first line, longer before final
+        setTimeout(typeNextChar, delay);
+      }
+    }
+
+    typeNextChar();
+  </script>
+</body>
+</html>
