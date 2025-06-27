@@ -67,17 +67,11 @@
       div1.className = "line";
       container.appendChild(div1);
 
-      // Type first line
       await typeCharacters(line1, div1);
-
-      // Pause then fade
       await new Promise(r => setTimeout(r, PAUSE));
       div1.classList.add("fade");
+      await new Promise(r => setTimeout(r, FADE_DURATION + 500));
 
-      // WAIT FULLY before showing line 2
-      await new Promise(r => setTimeout(r, FADE_DURATION + 250));
-
-      // THEN add and type second line
       const div2 = document.createElement("div");
       div2.className = "line";
       container.appendChild(div2);
@@ -86,6 +80,8 @@
       const italic = document.createElement("span");
       italic.className = "italic";
       div2.appendChild(italic);
+
+      await new Promise(r => setTimeout(r, 250)); // Ensure delay before typing starts
 
       for (let i = 0; i < line2B.length; i++) {
         italic.textContent += line2B[i];
