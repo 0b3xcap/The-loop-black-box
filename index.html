@@ -2,11 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Black Box 001</title>
+  <title>Black Box: Are You Awake?</title>
   <style>
     body {
-      margin: 0;
       background-color: black;
       color: white;
       font-family: Calibri, sans-serif;
@@ -16,73 +14,102 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
-      transition: background-color 1.2s ease;
+      margin: 0;
+      overflow: hidden;
     }
-    #text {
+
+    #text-container {
       white-space: pre-wrap;
-      text-align: left;
-      max-width: 90vw;
-      line-height: 1.5em;
-      opacity: 1;
-      transition: opacity 1.5s ease;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 2.5s ease-in-out;
     }
+
+    .fade-out {
+      opacity: 0;
+      transition: opacity 3s ease-in-out;
+    }
+
+    .fade-in {
+      opacity: 1;
+    }
+
     .italic {
       font-style: italic;
     }
   </style>
 </head>
 <body>
-  <div id="text"></div>
+  <div id="text-container"></div>
 
   <script>
+    const container = document.getElementById('text-container');
+
     const line1 = "Most people never question the shift between sleep and habit.";
-    const line2a = "You were here. But were you ";
-    const line2b = "here"; // italic
-    const line2c = "?";
+    const line2Part1 = "You were here. But were you ";
+    const line2Here = "here";
+    const line2Part2 = "?";
 
-    const speed = 90;
-    const target = document.getElementById("text");
-
-    function typeLine(text, el, delay = speed) {
+    function typeLine(text, container, delay = 100) {
       return new Promise(resolve => {
         let i = 0;
-        const typer = setInterval(() => {
-          el.innerHTML += text[i];
+        container.innerHTML = "";
+        container.classList.add("fade-in");
+
+        const interval = setInterval(() => {
+          container.innerHTML += text[i];
           i++;
           if (i >= text.length) {
-            clearInterval(typer);
+            clearInterval(interval);
             resolve();
           }
         }, delay);
       });
     }
 
-    function fadeOutTarget(delay = 0) {
+    function typeLineWithItalic(container, delay = 100) {
       return new Promise(resolve => {
-        setTimeout(() => {
-          target.style.opacity = 0;
-          setTimeout(resolve, 1500); // wait for fade to finish
+        let i = 0;
+        container.innerHTML = "";
+        container.classList.add("fade-in");
+
+        const full = line2Part1 + line2Here + line2Part2;
+        const italicStart = line2Part1.length;
+        const italicEnd = italicStart + line2Here.length;
+
+        const interval = setInterval(() => {
+          if (i < italicStart) {
+            container.innerHTML += full[i];
+          } else if (i === italicStart) {
+            container.innerHTML += `<span class="italic">${full[i]}`;
+          } else if (i > italicStart && i < italicEnd) {
+            container.innerHTML = container.innerHTML.slice(0, -7) + full[i] + "</span>";
+          } else {
+            container.innerHTML += full[i];
+          }
+
+          i++;
+          if (i >= full.length) {
+            clearInterval(interval);
+            resolve();
+          }
         }, delay);
       });
     }
 
     async function runSequence() {
-      await typeLine(line1, target);
-      await new Promise(r => setTimeout(r, 1500));
-      await fadeOutTarget();
+      await new Promise(res => setTimeout(res, 500));
+      await typeLine(line1, container);
+      await new Promise(res => setTimeout(res, 2500));
+      container.classList.add("fade-out");
+      await new Promise(res => setTimeout(res, 3000));
 
-      target.innerHTML = "";
-      target.style.opacity = 1;
-
-      await typeLine(line2a, target);
-      const italicSpan = document.createElement("span");
-      italicSpan.className = "italic";
-      target.appendChild(italicSpan);
-      await typeLine(line2b, italicSpan);
-      await typeLine(line2c, target);
-
-      await new Promise(r => setTimeout(r, 1500));
-      await fadeOutTarget();
+      container.classList.remove("fade-out");
+      container.innerHTML = "";
+      await new Promise(res => setTimeout(res, 300));
+      await typeLineWithItalic(container);
+      await new Promise(res => setTimeout(res, 3500));
+      container.classList.add("fade-out");
     }
 
     runSequence();
