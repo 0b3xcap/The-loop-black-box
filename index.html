@@ -3,39 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>The Loop – Are You Awake</title>
+  <title>The Loop – Black Box</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background-color: black;
+      background: black;
       color: white;
       font-family: Calibri, sans-serif;
       font-weight: bold;
-      font-size: 6vw;
       height: 100vh;
       overflow: hidden;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
     }
 
     #container {
-      text-align: left;
-      padding: 0 5vw;
+      font-size: 6.5vw;
+      line-height: 1.3;
       white-space: nowrap;
-    }
-
-    .fade {
-      animation: fadeOut 2s ease forwards;
-    }
-
-    @keyframes fadeOut {
-      to { opacity: 0; }
+      text-align: left;
+      padding: 0 4vw;
     }
 
     .italic {
       font-style: italic;
+    }
+
+    .fade {
+      animation: fadeOut 2.5s ease forwards;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; }
     }
   </style>
 </head>
@@ -46,51 +47,58 @@
     const container = document.getElementById("container");
 
     const line1 = "Most people never question the shift between sleep and habit.";
-    const line2Part1 = "You were here. But were you ";
-    const line2Italic = "here";
-    const line2End = "?";
+    const line2A = "You were here. But were you ";
+    const line2B = "here";
+    const line2C = "?";
 
-    const TYPE_SPEED = 90;
-    const PAUSE_BEFORE_FADE = 2500;
-    const FADE_DURATION = 2000;
+    const TYPE_SPEED = 120;
+    const PAUSE = 2500;
+    const FADE_TIME = 2500;
 
-    async function typeLine(text, appendTo, isHTML = false) {
+    async function typeLine(text, parent, italicLastWord = false) {
       return new Promise(resolve => {
         let i = 0;
-        const interval = setInterval(() => {
-          if (i <= text.length) {
-            appendTo.innerHTML = isHTML ? text.slice(0, i) : appendTo.innerHTML + text[i];
+        let interval = setInterval(() => {
+          if (i < text.length) {
+            parent.textContent += text[i];
             i++;
           } else {
             clearInterval(interval);
-            resolve();
+            setTimeout(() => {
+              parent.classList.add('fade');
+              setTimeout(resolve, FADE_TIME);
+            }, PAUSE);
           }
         }, TYPE_SPEED);
       });
     }
 
     async function showSequence() {
-      // LINE 1
-      const div1 = document.createElement("div");
-      container.appendChild(div1);
-      await typeLine(line1, div1);
-      await new Promise(r => setTimeout(r, PAUSE_BEFORE_FADE));
-      div1.classList.add("fade");
-      await new Promise(r => setTimeout(r, FADE_DURATION));
-      container.removeChild(div1);
+      // Line 1
+      const line1Div = document.createElement('div');
+      container.appendChild(line1Div);
+      await typeLine(line1, line1Div);
+      container.removeChild(line1Div);
 
-      // LINE 2
-      const div2 = document.createElement("div");
-      container.appendChild(div2);
-      await typeLine(line2Part1, div2);
+      // Line 2
+      const line2Div = document.createElement('div');
+      container.appendChild(line2Div);
+      await typeLine(line2A, line2Div);
 
-      const italicSpan = document.createElement("span");
-      italicSpan.className = "italic";
-      div2.appendChild(italicSpan);
-      await typeLine(line2Italic, italicSpan);
-      await typeLine(line2End, div2);
-      await new Promise(r => setTimeout(r, PAUSE_BEFORE_FADE));
-      div2.classList.add("fade");
+      const italic = document.createElement('span');
+      italic.className = "italic";
+      line2Div.appendChild(italic);
+      for (let i = 0; i < line2B.length; i++) {
+        italic.textContent += line2B[i];
+        await new Promise(r => setTimeout(r, TYPE_SPEED));
+      }
+
+      line2Div.appendChild(document.createTextNode(line2C));
+
+      setTimeout(() => {
+        line2Div.classList.add('fade');
+      }, PAUSE);
+
     }
 
     showSequence();
