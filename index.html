@@ -16,11 +16,18 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      transition: background-color 1.2s ease;
     }
     #text {
       white-space: pre-wrap;
       text-align: left;
       max-width: 90vw;
+      line-height: 1.5em;
+      opacity: 1;
+      transition: opacity 1.5s ease;
+    }
+    .italic {
+      font-style: italic;
     }
   </style>
 </head>
@@ -28,35 +35,48 @@
   <div id="text"></div>
 
   <script>
-    const lines = [
-      "Most people never question the shift between sleep and habit",
-      "",
-      "You were here. But were you here?"
-    ];
+    const line1 = "Most people never question the shift between sleep and habit.";
+    const line2a = "You were here. But were you ";
+    const line2b = "here"; // italic
+    const line2c = "?";
 
-    const speed = 40; // typing speed (ms per character)
-    let currentLine = 0;
-    let currentChar = 0;
+    const speed = 70;
     const target = document.getElementById("text");
 
-    function typeNextChar() {
-      if (currentLine >= lines.length) return;
-
-      const line = lines[currentLine];
-      if (currentChar < line.length) {
-        target.innerHTML += line[currentChar];
-        currentChar++;
-        setTimeout(typeNextChar, speed);
-      } else {
-        currentLine++;
-        currentChar = 0;
-        target.innerHTML += "\n";
-        let delay = currentLine === 1 ? 1000 : 1500; // short pause after first line, longer before final
-        setTimeout(typeNextChar, delay);
-      }
+    function typeLine(text, el, delay = speed) {
+      return new Promise(resolve => {
+        let i = 0;
+        const typer = setInterval(() => {
+          el.innerHTML += text[i];
+          i++;
+          if (i >= text.length) {
+            clearInterval(typer);
+            resolve();
+          }
+        }, delay);
+      });
     }
 
-    typeNextChar();
+    async function runSequence() {
+      await typeLine(line1, target);
+      await new Promise(r => setTimeout(r, 1500));
+
+      target.style.opacity = 0;
+      await new Promise(r => setTimeout(r, 1500));
+      target.innerHTML = "";
+      target.style.opacity = 1;
+
+      await typeLine(line2a, target);
+
+      const italicSpan = document.createElement("span");
+      italicSpan.className = "italic";
+      target.appendChild(italicSpan);
+      await typeLine(line2b, italicSpan);
+
+      await typeLine(line2c, target);
+    }
+
+    runSequence();
   </script>
 </body>
 </html>
