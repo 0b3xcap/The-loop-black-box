@@ -102,7 +102,7 @@
   <div id="startScreen" class="fade-in">
     <div id="startScreenText">
       SYNCHRONISE<br>
-      <span style="font-style: italic; font-size: 0.4em;">Tap to begin</span>
+      <span style="font-style: italic; font-size: 0.3em;">Tap to begin</span>
     </div>
     <button id="startButton"></button>
   </div>
@@ -150,20 +150,20 @@
     }
 
     function fadeOutAudio(audio, duration = 5000) {
-      const startVolume = audio.volume;
-      const startTime = Date.now();
+      const steps = 50;
+      const stepTime = duration / steps;
+      const volumeStep = audio.volume / steps;
 
-      function step() {
-        const elapsed = Date.now() - startTime;
-        const progress = elapsed / duration;
-        if (progress < 1) {
-          audio.volume = Math.max(startVolume * (1 - progress), 0);
-          requestAnimationFrame(step);
+      let currentStep = 0;
+      const fade = setInterval(() => {
+        if (currentStep < steps) {
+          audio.volume = Math.max(0, audio.volume - volumeStep);
+          currentStep++;
         } else {
-          audio.volume = 0;
+          clearInterval(fade);
+          audio.pause();
         }
-      }
-      requestAnimationFrame(step);
+      }, stepTime);
     }
 
     function beginExperience() {
@@ -177,7 +177,6 @@
         startScreen.style.display = "none";
       }, 1000);
 
-      // Start text animation
       setTimeout(() => {
         typeText(line1El, line1Text, 150, () => {
           setTimeout(() => {
@@ -187,10 +186,10 @@
         });
       }, 2000);
 
-      // Fade audio after 17.5s (17500 ms)
+      // Start audio fade after 25s
       setTimeout(() => {
-        fadeOutAudio(chime1);
-        fadeOutAudio(chime2);
+        fadeOutAudio(chime1, 5000);
+        fadeOutAudio(chime2, 5000);
       }, 25000);
     }
 
