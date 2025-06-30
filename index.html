@@ -33,11 +33,11 @@
     }
 
     .fade-out {
-      animation: fadeOut 2.5s forwards;
+      animation: fadeOut 4s forwards;
     }
 
     .fade-in {
-      animation: fadeIn 2.5s ease-out forwards;
+      animation: fadeIn 5s ease-out forwards;
     }
 
     @keyframes fadeOut {
@@ -101,8 +101,8 @@
   <!-- Start screen -->
   <div id="startScreen" class="fade-in">
     <div id="startScreenText">
-      Synchronise<br>
-      <span style="font-style: italic; font-size: 0.4em;">Tap to begin</span>
+      SYNC<br>
+      <span style="font-style: italic; font-size: 0.2em;">Tap to begin</span>
     </div>
     <button id="startButton"></button>
   </div>
@@ -149,7 +149,25 @@
       }, 3000);
     }
 
+    function fadeOutAudio(audioElement) {
+      const fadeDuration = 5000; // 5 seconds
+      const steps = 50;
+      const fadeStep = audioElement.volume / steps;
+      const interval = fadeDuration / steps;
+
+      const fade = setInterval(() => {
+        if (audioElement.volume - fadeStep > 0) {
+          audioElement.volume -= fadeStep;
+        } else {
+          audioElement.volume = 0;
+          clearInterval(fade);
+        }
+      }, interval);
+    }
+
     function beginExperience() {
+      chime1.volume = 1;
+      chime2.volume = 1;
       chime1.play();
       chime2.play();
 
@@ -158,6 +176,7 @@
         startScreen.style.display = "none";
       }, 1000);
 
+      // Start text animation
       setTimeout(() => {
         typeText(line1El, line1Text, 150, () => {
           setTimeout(() => {
@@ -166,6 +185,12 @@
           }, 2000);
         });
       }, 2000);
+
+      // Fade out after 35s
+      setTimeout(() => {
+        fadeOutAudio(chime1);
+        fadeOutAudio(chime2);
+      }, 35000);
     }
 
     startButton.addEventListener("click", beginExperience);
