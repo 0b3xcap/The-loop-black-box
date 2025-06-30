@@ -33,26 +33,12 @@
     }
 
     .fade-out {
-      animation: fadeOut 2s forwards;
-    }
-
-    .fade-in {
-      animation: fadeIn 2s forwards;
+      animation: fadeOut 1.2s forwards;
     }
 
     @keyframes fadeOut {
       to {
         opacity: 0;
-        visibility: hidden;
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
       }
     }
 
@@ -74,8 +60,8 @@
       align-items: center;
       font-size: 1em;
       flex-direction: column;
-      opacity: 0;
-      animation: fadeIn 2s forwards;
+      opacity: 1;
+      transition: opacity 1s ease;
     }
 
     #startScreenText {
@@ -96,12 +82,12 @@
   </style>
 </head>
 <body>
-  <!-- Audio elements -->
+  <!-- Audio -->
   <audio id="chime1" src="F%20CHIME%20PAUL.wav"></audio>
   <audio id="chime2" src="F%20CHIME%20STD%20.wav"></audio>
 
-  <!-- Overlay start screen -->
-  <div id="startScreen" class="fade-in">
+  <!-- Start screen -->
+  <div id="startScreen">
     <div id="startScreenText">Synchronise<br><span style="font-size: 0.6em;">Tap to begin</span></div>
     <button id="startButton"></button>
   </div>
@@ -113,15 +99,15 @@
   </div>
 
   <script>
-    const line1Text = "Most people never question the shift between sleep and habit.";
-    const line2TextParts = ["You were here. But were you ", "<span class='italic'>here?</span>"];
-
-    const line1El = document.getElementById("line1");
-    const line2El = document.getElementById("line2");
     const chime1 = document.getElementById("chime1");
     const chime2 = document.getElementById("chime2");
     const startScreen = document.getElementById("startScreen");
     const startButton = document.getElementById("startButton");
+
+    const line1Text = "Most people never question the shift between sleep and habit.";
+    const line2TextParts = ["You were here. But were you ", "<span class='italic'>here?</span>"];
+    const line1El = document.getElementById("line1");
+    const line2El = document.getElementById("line2");
 
     function typeText(element, text, delay = 150, callback) {
       let i = 0;
@@ -148,15 +134,18 @@
       }, 3000);
     }
 
-    function startSequence() {
-      // Play both audio files
+    function beginExperience() {
+      // Play audio
       chime1.play();
       chime2.play();
 
-      // Fade out the overlay
+      // Hide start screen with fade
       startScreen.classList.add("fade-out");
+      setTimeout(() => {
+        startScreen.style.display = "none";
+      }, 1000);
 
-      // Begin visuals
+      // Start visual sequence
       setTimeout(() => {
         typeText(line1El, line1Text, 150, () => {
           setTimeout(() => {
@@ -167,7 +156,7 @@
       }, 2000);
     }
 
-    startButton.addEventListener("click", startSequence);
+    startButton.addEventListener("click", beginExperience);
   </script>
 </body>
 </html>
