@@ -36,9 +36,22 @@
       animation: fadeOut 1.2s forwards;
     }
 
+    .fade-in {
+      animation: fadeIn 1.2s ease-out forwards;
+    }
+
     @keyframes fadeOut {
       to {
         opacity: 0;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
       }
     }
 
@@ -60,8 +73,7 @@
       align-items: center;
       font-size: 1em;
       flex-direction: column;
-      opacity: 1;
-      transition: opacity 1s ease;
+      opacity: 0;
     }
 
     #startScreenText {
@@ -87,8 +99,11 @@
   <audio id="chime2" src="F%20CHIME%20STD%20.wav"></audio>
 
   <!-- Start screen -->
-  <div id="startScreen">
-    <div id="startScreenText">Synchronise<br><span style="font-size: 0.6em;">Tap to begin</span></div>
+  <div id="startScreen" class="fade-in">
+    <div id="startScreenText">
+      Synchronise<br>
+      <span style="font-style: italic; font-size: 0.7em;">Tap to begin</span>
+    </div>
     <button id="startButton"></button>
   </div>
 
@@ -135,17 +150,14 @@
     }
 
     function beginExperience() {
-      // Play audio
       chime1.play();
       chime2.play();
 
-      // Hide start screen with fade
       startScreen.classList.add("fade-out");
       setTimeout(() => {
         startScreen.style.display = "none";
       }, 1000);
 
-      // Start visual sequence
       setTimeout(() => {
         typeText(line1El, line1Text, 150, () => {
           setTimeout(() => {
