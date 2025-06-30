@@ -14,7 +14,7 @@
       font-weight: bold;
       font-size: 2.8em;
       display: flex;
-      justify-content: flex-start;
+      justify-content: center;
       align-items: center;
       height: 100vh;
       overflow: hidden;
@@ -24,79 +24,104 @@
       text-align: left;
       white-space: pre-line;
       padding-left: 5vw;
+      display: none;
     }
 
-    .hidden {
-      visibility: hidden;
+    .hidden { visibility: hidden; }
+
+    .fade-out { animation: fadeOut 2s forwards; }
+    .fade-in  { animation: fadeIn 2s forwards; }
+
+    @keyframes fadeOut { to { opacity: 0; } }
+    @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+
+    .italic { font-style: italic; }
+
+    #startScreen {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      background-color: black;
+      color: white;
+      font-family: Calibri, sans-serif;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 1000;
+      cursor: pointer;
+      text-align: center;
     }
 
-    .fade-out {
-      animation: fadeOut 2s forwards;
+    #startScreen p {
+      font-size: 2.4rem;
+      margin: 0;
     }
 
-    .fade-in {
-      animation: fadeIn 2s forwards;
-    }
-
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    .italic {
-      font-style: italic;
+    #startScreen span {
+      font-size: 1.2rem;
+      opacity: 0.6;
+      margin-top: 0.5rem;
     }
   </style>
 </head>
 <body>
-  <div id="container">
-    <div id="line1"></div>
-    <div id="line2" class="hidden"></div>
-  </div>
 
-  <script>
-    const line1Text = "Most people never question the shift between sleep and habit.";
-    const line2TextParts = ["You were here. But were you ", "<span class='italic'>here?</span>"];
+<div id="startScreen" onclick="startExperience()">
+  <p>Synchronise</p>
+  <span>(Tap to begin)</span>
+</div>
 
-    const line1El = document.getElementById("line1");
-    const line2El = document.getElementById("line2");
+<div id="container">
+  <div id="line1"></div>
+  <div id="line2" class="hidden"></div>
+</div>
 
-    function typeText(element, text, delay = 150, callback) {
-      let i = 0;
-      function type() {
-        if (i < text.length) {
-          element.innerHTML += text[i++];
-          setTimeout(type, delay);
-        } else if (callback) {
-          callback();
-        }
+<audio id="audio1" src="F CHIME STD .wav" preload="auto"></audio>
+<audio id="audio2" src="F CHIME PAUL.wav" preload="auto"></audio>
+
+<script>
+  const line1Text = "Most people never question the shift between sleep and habit.";
+  const line2TextParts = ["You were here. But were you ", "<span class='italic'>here?</span>"];
+
+  const line1El = document.getElementById("line1");
+  const line2El = document.getElementById("line2");
+  const audio1 = document.getElementById("audio1");
+  const audio2 = document.getElementById("audio2");
+
+  function typeText(element, text, delay = 150, callback) {
+    let i = 0;
+    function type() {
+      if (i < text.length) {
+        element.innerHTML += text[i++];
+        setTimeout(type, delay);
+      } else if (callback) {
+        callback();
       }
-      type();
     }
+    type();
+  }
 
-    function startLine2() {
-      setTimeout(() => {
-        line2El.classList.remove("hidden");
-        typeText(line2El, line2TextParts[0], 150, () => {
-          line2El.innerHTML += line2TextParts[1];
-          setTimeout(() => {
-            line2El.classList.add("fade-out");
-          }, 2000);
-        });
-      }, 3000);
-    }
+  function startLine2() {
+    setTimeout(() => {
+      line2El.classList.remove("hidden");
+      typeText(line2El, line2TextParts[0], 150, () => {
+        line2El.innerHTML += line2TextParts[1];
+        setTimeout(() => {
+          line2El.classList.add("fade-out");
+        }, 2000);
+      });
+    }, 3000);
+  }
 
-    // NEW: Delay before starting Line 1
+  function startExperience() {
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("container").style.display = "block";
+
+    audio1.play();
+    audio2.play();
+
     setTimeout(() => {
       typeText(line1El, line1Text, 150, () => {
         setTimeout(() => {
@@ -104,8 +129,9 @@
           startLine2();
         }, 2000);
       });
-    }, 2000); // initial pause before line 1 typing begins
+    }, 2000); // initial pause before line 1 typing
+  }
+</script>
 
-  </script>
 </body>
 </html>
