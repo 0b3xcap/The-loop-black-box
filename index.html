@@ -48,7 +48,7 @@
       }
     }
 
-    /* LAYERS inside the stage use 100% of the stage, not the viewport */
+    /* LAYERS inside the stage use 100% of the stage */
     .layer {
       position: absolute;
       inset: 0;
@@ -56,7 +56,7 @@
       height: 100%;
       opacity: 0;
       transition: opacity var(--fade) ease;
-      pointer-events: none;
+      pointer-events: none; /* default off; selectively re-enable below */
     }
 
     .slide {
@@ -64,14 +64,15 @@
       background-repeat: no-repeat;
       background-size: cover; /* default fill for slides */
       z-index: 1;
+      pointer-events: none;
     }
 
-    /* Your poster/info slide that should fit in frame (no cropping) */
+    /* Poster/info slide that should fit in frame (no cropping) */
     #slide3 {
       background-size: contain;
       background-repeat: no-repeat;
       background-position: center;
-      background-color: black; /* keep clean edges around contained art */
+      background-color: black; /* clean edges around contained art */
     }
 
     .text {
@@ -85,12 +86,13 @@
       font-size: var(--text-base);
       line-height: 1.4;
       text-shadow: 0 0 10px rgba(0,0,0,0.6);
+      pointer-events: none;
     }
 
     .yellow { color: #ffcc00; }
     .final  { color: white; }
 
-    /* START SCREEN lives on top of the stage */
+    /* START SCREEN on top of the stage — re-enable pointer events here */
     #startScreen {
       position: absolute;
       inset: 0;
@@ -104,7 +106,9 @@
       opacity: 1;
       z-index: 10;
       transition: opacity var(--fade) ease;
+      pointer-events: auto; /* allow clicks */
     }
+    #startScreen * { pointer-events: auto; } /* ensure button receives events */
     #startScreenText {
       text-align: center;
       line-height: 1.4em;
@@ -118,7 +122,7 @@
       cursor: pointer;
     }
 
-    /* Simple fade helpers (optional, JS is primary) */
+    /* Simple fade helpers (JS drives state) */
     .show { opacity: 1; }
     .hide { opacity: 0; }
   </style>
@@ -127,9 +131,9 @@
 
   <!-- 16:9 STAGE -->
   <div class="stage" id="stage">
-    <!-- Audio (inside stage so kiosk “click” reliably unlocks) -->
-    <audio id="chime1" src="F%20CHIME%20PAUL.wav"></audio>
-    <audio id="chime2" src="F%20CHIME%20STD%20.wav"></audio>
+    <!-- Audio -->
+    <audio id="chime1" src="F%20CHIME%20PAUL.wav" preload="auto"></audio>
+    <audio id="chime2" src="F%20CHIME%20STD%20.wav" preload="auto"></audio>
 
     <!-- Start screen -->
     <div id="startScreen" class="layer show">
