@@ -2,158 +2,171 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>The Loop – Black Box</title>
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>SED W28 – Chemical Handling (16:9)</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      color: white;
-      font-family: Calibri, sans-serif;
-      font-weight: bold;
-      font-size: 2.8em;
-      display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-      position: relative;
+    /* GLOBAL */
+    :root {
+      /* Tune these if you need bigger/smaller type on large TVs */
+      --text-base: clamp(1.4rem, 3vmin, 2.6rem);
+      --pad: 2rem;
+      --fade: 2s;
     }
 
-    #container {
-      text-align: left;
-      white-space: pre-line;
-      padding-left: 5vw;
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: black; /* letterbox bars live here */
+      font-family: 'Space Mono', monospace;
+      color: white;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      height: 100%;
+      width: 100%;
+    }
+
+    /* STAGE: strict 16:9 canvas, centered with letterboxing */
+    .stage {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: black;
+      overflow: hidden;
+      /* Default: scale to width (common on tall screens) */
+      width: 100vw;
+      height: calc(100vw * 9 / 16);
+    }
+    /* If the viewport is relatively wider than 16:9, scale to height instead */
+    @media (min-aspect-ratio: 16/9) {
+      .stage {
+        width: calc(100vh * 16 / 9);
+        height: 100vh;
+      }
+    }
+
+    /* LAYERS inside the stage use 100% of the stage, not the viewport */
+    .layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity var(--fade) ease;
+      pointer-events: none;
+    }
+
+    .slide {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover; /* default fill for slides */
       z-index: 1;
     }
 
-    .hidden {
-      visibility: hidden;
+    /* Your poster/info slide that should fit in frame (no cropping) */
+    #slide3 {
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      background-color: black; /* keep clean edges around contained art */
     }
 
-    .fade-out {
-      animation: fadeOut 5s forwards;
+    .text {
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--pad);
+      box-sizing: border-box;
+      font-size: var(--text-base);
+      line-height: 1.4;
+      text-shadow: 0 0 10px rgba(0,0,0,0.6);
     }
 
-    .fade-in {
-      animation: fadeIn 5s ease-out forwards;
-    }
+    .yellow { color: #ffcc00; }
+    .final  { color: white; }
 
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-      }
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-      }
-      to {
-        opacity: 1;
-      }
-    }
-
-    .italic {
-      font-style: italic;
-    }
-
+    /* START SCREEN lives on top of the stage */
     #startScreen {
       position: absolute;
-      z-index: 10;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       background-color: black;
       color: white;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-size: 1em;
       flex-direction: column;
-      opacity: 0;
+      font-size: clamp(1rem, 2.2vmin, 1.6rem);
+      opacity: 1;
+      z-index: 10;
+      transition: opacity var(--fade) ease;
     }
-
     #startScreenText {
       text-align: center;
       line-height: 1.4em;
     }
-
     #startButton {
       position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
+      inset: 0;
       z-index: 11;
       background: transparent;
       border: none;
+      cursor: pointer;
     }
+
+    /* Simple fade helpers (optional, JS is primary) */
+    .show { opacity: 1; }
+    .hide { opacity: 0; }
   </style>
 </head>
 <body>
-  <!-- Audio -->
-  <audio id="chime1" src="F%20CHIME%20PAUL.wav"></audio>
-  <audio id="chime2" src="F%20CHIME%20STD%20.wav"></audio>
 
-  <!-- Start screen -->
-  <div id="startScreen" class="fade-in">
-    <div id="startScreenText">
-      SYNCHRONISE<br>
-      <span style="font-style: italic; font-size: 0.3em;">Tap to begin</span>
+  <!-- 16:9 STAGE -->
+  <div class="stage" id="stage">
+    <!-- Audio (inside stage so kiosk “click” reliably unlocks) -->
+    <audio id="chime1" src="C%20CHIME%20PAUL.wav"></audio>
+    <audio id="chime2" src="C%20CHIME%20STD%20.wav"></audio>
+
+    <!-- Start screen -->
+    <div id="startScreen" class="layer show">
+      <div id="startScreenText">
+        SAFELY EVERY DAY<br>
+        <span style="font-style: italic; font-size: 0.7em;">Tap or click to begin</span>
+      </div>
+      <button id="startButton" aria-label="Start"></button>
     </div>
-    <button id="startButton"></button>
-  </div>
 
-  <!-- Main content -->
-  <div id="container">
-    <div id="line1"></div>
-    <div id="line2" class="hidden"></div>
+    <!-- Background slides -->
+    <div class="layer slide" id="slide1" style="background-image: url('MENTAL3HD.png');"></div>
+    <div class="layer slide" id="slide2" style="background-image: url('MENTAL4HD.png');"></div>
+    <div class="layer slide" id="slide3" style="background-image: url('SEDWK37HD.png');"></div>
+
+    <!-- Text overlays -->
+    <div class="layer text"   id="text1">A simple question can change someone's day.</div>
+    <div class="layer text yellow" id="text2">Listening is the strongest form of support.</div>
+    <div class="layer text final"  id="text3">R U OK? Four letters that open real conversation.</div>
   </div>
 
   <script>
+    // ELEMENTS
     const chime1 = document.getElementById("chime1");
     const chime2 = document.getElementById("chime2");
     const startScreen = document.getElementById("startScreen");
     const startButton = document.getElementById("startButton");
 
-    const line1Text = "Only 9 of them were written down.";
-    const line2TextParts = ["Who....... ", "<span class='italic'>taught you the others?</span>"];
-    const line1El = document.getElementById("line1");
-    const line2El = document.getElementById("line2");
-
-    function typeText(element, text, delay = 150, callback) {
-      let i = 0;
-      function type() {
-        if (i < text.length) {
-          element.innerHTML += text[i++];
-          setTimeout(type, delay);
-        } else if (callback) {
-          callback();
-        }
-      }
-      type();
-    }
-
-    function startLine2() {
-      setTimeout(() => {
-        line2El.classList.remove("hidden");
-        typeText(line2El, line2TextParts[0], 150, () => {
-          line2El.innerHTML += line2TextParts[1];
-          setTimeout(() => {
-            line2El.classList.add("fade-out");
-          }, 2000);
-        });
-      }, 3000);
-    }
+    // UTILS
+    function fadeIn(id)  { const el = document.getElementById(id); if (el) el.classList.add('show'); }
+    function fadeOut(id) { const el = document.getElementById(id); if (el) el.classList.remove('show'); }
 
     function fadeOutAudio(audio, duration = 5000) {
+      if (!audio) return;
       const steps = 50;
       const stepTime = duration / steps;
-      const volumeStep = audio.volume / steps;
-
+      const volumeStep = (audio.volume || 1) / steps;
       let currentStep = 0;
       const fade = setInterval(() => {
         if (currentStep < steps) {
@@ -161,39 +174,84 @@
           currentStep++;
         } else {
           clearInterval(fade);
-          audio.pause();
+          try { audio.pause(); } catch {}
         }
       }, stepTime);
     }
 
-    function beginExperience() {
-      chime1.volume = 1;
-      chime2.volume = 1;
-      chime1.play();
-      chime2.play();
+    // SEQUENCE (unchanged timings)
+    const sequence = [
+      [() => {},                    2000],
+      [() => fadeIn("slide1"),         0],
+      [() => {},                    2000],
+      [() => fadeIn("text1"),          0],
+      [() => {},                    6500],
+      [() => fadeOut("slide1"),        0],
+      [() => {},                    2000],
+      [() => fadeOut("text1"),         0],
+      [() => {},                    1000],
+      [() => fadeIn("slide2"),         0],
+      [() => {},                    2000],
+      [() => fadeIn("text2"),          0],
+      [() => {},                    6500],
+      [() => fadeOut("slide2"),        0],
+      [() => {},                    2000],
+      [() => fadeOut("text2"),         0],
+      [() => {},                    1000],
+      [() => fadeIn("slide3"),         0],
+      [() => {},                   25000],
+      [() => fadeOut("slide3"),        0],
+      [() => {},                    1000],
+      [() => fadeIn("text3"),          0],
+      [() => {},                    5000],
+      [() => fadeOut("text3"),         0],
+    ];
 
-      startScreen.classList.add("fade-out");
-      setTimeout(() => {
-        startScreen.style.display = "none";
-      }, 1000);
-
-      setTimeout(() => {
-        typeText(line1El, line1Text, 150, () => {
-          setTimeout(() => {
-            line1El.classList.add("fade-out");
-            startLine2();
-          }, 2000);
-        });
-      }, 2000);
-
-      // Start audio fade after 25s
-      setTimeout(() => {
-        fadeOutAudio(chime1, 5000);
-        fadeOutAudio(chime2, 5000);
-      }, 25000);
+    let step = 0;
+    function runSequence() {
+      if (step >= sequence.length) return;
+      const [fn, delay] = sequence[step];
+      try { fn(); } catch {}
+      step++;
+      setTimeout(runSequence, delay);
     }
 
-    startButton.addEventListener("click", beginExperience);
+    function start(withAudio = true) {
+      // Hide start overlay
+      startScreen.classList.remove('show');
+      startScreen.classList.add('hide');
+
+      // Audio handling
+      if (withAudio) {
+        try {
+          chime1.volume = 1; chime2.volume = 1;
+          chime1.currentTime = 0; chime2.currentTime = 0;
+          chime1.play(); chime2.play();
+          setTimeout(() => {
+            fadeOutAudio(chime1, 5000);
+            fadeOutAudio(chime2, 5000);
+          }, 35000);
+        } catch { /* kiosk may block; sequence still runs */ }
+      }
+
+      // Kick sequence
+      setTimeout(runSequence, 800);
+    }
+
+    // Primary: user interaction (unlocks audio on most kiosk browsers)
+    startButton.addEventListener("click", () => start(true));
+
+    // Fallback: if no interaction after 5s, run silently so signage doesn’t stall
+    let autoStartTimer = setTimeout(() => {
+      if (startScreen.classList.contains('show')) start(false);
+    }, 5000);
+
+    // Any interaction cancels silent autostart (we’ll use the click handler above)
+    ['pointerdown','keydown'].forEach(evt => {
+      window.addEventListener(evt, () => {
+        clearTimeout(autoStartTimer);
+      }, { once: true });
+    });
   </script>
 </body>
 </html>
